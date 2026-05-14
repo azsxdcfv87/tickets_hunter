@@ -44,6 +44,28 @@
 pip install -r requirement.txt
 ```
 
+### macOS 一鍵啟動
+
+Mac 使用者可以直接在專案根目錄執行：
+
+```bash
+./run_mac.sh
+```
+
+這個腳本會自動建立 `.venv`、安裝相依套件，並啟動設定介面。若已安裝過相依套件，可用下列方式略過安裝：
+
+```bash
+SKIP_INSTALL=1 ./run_mac.sh
+```
+
+若要在 macOS 產生可發佈的執行檔版本：
+
+```bash
+build_scripts/build_mac.sh
+cd dist/tickets_hunter_macos
+./settings
+```
+
 ### 4. 路徑說明（重要！）
 
 執行指令前請先確認工作目錄：

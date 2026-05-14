@@ -100,11 +100,16 @@ Tickets Hunter 是一個開放原始碼的多平台搶票自動化系統，支�
 | 使用方式 | 適用對象 | 教學連結 |
 |----------|----------|----------|
 | **🟢 執行檔版本** | 一般使用者（推薦） | [安裝與首次執行](guide/installation.md) |
+| **🍎 macOS Python 版本** | Mac 使用者 | `./run_mac.sh` |
 | **🔴 Python 原始碼** | 開發者、進階使用者 | [快速入門指南](guide/quick-start.md) |
 
 ### 最簡步驟
 
-**執行檔版本**：下載 → 解壓縮 → 雙擊 `settings.exe` → 設定 → 搶票
+**Windows 執行檔版本**：下載 → 解壓縮 → 雙擊 `settings.exe` → 設定 → 搶票
+
+**macOS Python 版本**：下載 → 解壓縮 → 執行 `./run_mac.sh` → 設定 → 搶票
+
+**macOS 打包版本**：執行 `build_scripts/build_mac.sh` → 進入 `dist/tickets_hunter_macos` → 執行 `./settings`
 
 **Python 版本**：`pip install -r requirement.txt` → `python src/settings.py` → 設定 → 搶票
 

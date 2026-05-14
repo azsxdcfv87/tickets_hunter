@@ -2092,16 +2092,22 @@ def launch_maxbot(script_name="nodriver_tixcraft", filename="", homepage="", kkt
     working_dir = get_app_root()
     if hasattr(sys, 'frozen'):
         print("execute in frozen mode")
-        # check platform here.
-        cmd = './' + script_name + ' '.join(cmd_argument)
-        if platform.system() == 'Darwin':
-            print("execute MacOS python script")
-        if platform.system() == 'Linux':
-            print("execute linux binary")
-        if platform.system() == 'Windows':
+        system_name = platform.system()
+        executable_name = script_name + ".exe" if system_name == "Windows" else script_name
+        executable_path = os.path.join(working_dir, executable_name)
+
+        if system_name == 'Darwin':
+            print("execute macOS binary.")
+        if system_name == 'Linux':
+            print("execute linux binary.")
+        if system_name == 'Windows':
             print("execute .exe binary.")
-            cmd = script_name + '.exe ' + ' '.join(cmd_argument)
-        subprocess.Popen(cmd, shell=True, cwd=working_dir)
+
+        if not os.path.exists(executable_path):
+            executable_path = executable_name
+
+        cmd_array = [executable_path] + cmd_argument
+        subprocess.Popen(cmd_array, cwd=working_dir)
     else:
         interpreter_binary = sys.executable
         print("execute in shell mode.")
