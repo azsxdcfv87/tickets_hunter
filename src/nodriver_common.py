@@ -927,7 +927,7 @@ def get_nodriver_browser_args():
     return browser_args
 
 def get_extension_config(config_dict, args=None):
-    sandbox=True
+    sandbox = True
     browser_args = get_nodriver_browser_args()
     if len(config_dict["advanced"]["proxy_server_port"]) > 2:
         browser_args.append('--proxy-server=%s' % config_dict["advanced"]["proxy_server_port"])
@@ -972,8 +972,21 @@ def get_extension_config(config_dict, args=None):
         print("[ERROR] Please install Chrome manually or check your internet connection.")
         raise FileNotFoundError("Could not find or download Chrome browser")
 
-    # Normal mode: auto-detect (host=None, port=None) to let NoDriver start the browser
-    conf = Config(browser_args=browser_args, sandbox=sandbox, headless=config_dict["advanced"]["headless"], browser_executable_path=chrome_path)
+    user_data_dir = os.path.join(app_root, "webdriver", "chrome-profile")
+    os.makedirs(user_data_dir, exist_ok=True)
+
+    # Normal mode: auto-detect (host=None, port=None) to let NoDriver start the browser.
+    # macOS can take longer to expose the remote debugging endpoint, especially on
+    # first launch or after Chrome updates, so keep the startup window generous.
+    conf = Config(
+        browser_args=browser_args,
+        sandbox=sandbox,
+        headless=config_dict["advanced"]["headless"],
+        browser_executable_path=chrome_path,
+        user_data_dir=user_data_dir,
+        browser_connection_timeout=1.0,
+        browser_connection_max_tries=30,
+    )
     return conf
 
 def nodriver_overwrite_prefs(conf):

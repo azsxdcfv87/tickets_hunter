@@ -20,6 +20,7 @@ src/webdriver/*/data/status.json
 # Browser data
 chrome_profile/
 user_data/
+/src/webdriver/chrome-profile/
 
 # WebDriver executables
 /src/webdriver/*.exe
