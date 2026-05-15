@@ -663,6 +663,7 @@ async def main(args):
     cloudflare_checked = False
     cloudflare_fail_count = 0
     last_paused_state = False  # Track pause state changes
+    activity_pause_checked = False
 
     ocr = None
     Captcha_Browser = None
@@ -737,7 +738,21 @@ async def main(args):
                 write_last_url_to_file(url)
                 cloudflare_checked = False
                 cloudflare_fail_count = 0
+                activity_pause_checked = False
             last_url = url
+
+        if not activity_pause_checked:
+            activity_pause_checked = True
+            activity_paused = await detect_platform_activity_pause(
+                tab,
+                show_debug=config_dict.get("advanced", {}).get("verbose", False),
+            )
+            if activity_paused:
+                print("[RISK CONTROL] Browsing activity pause page detected.")
+                print("[RISK CONTROL] Bot paused. Please handle account/network/device checks manually, then resume.")
+                pause_bot_for_manual_intervention("platform activity pause detected")
+                await asyncio.sleep(0.5)
+                continue
 
         if is_maxbot_paused:
             if 'kktix.c' in url:

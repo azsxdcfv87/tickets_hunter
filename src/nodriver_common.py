@@ -805,6 +805,54 @@ async def handle_cloudflare_challenge(tab, config_dict, max_retry=None):
     return False
 
 
+async def detect_platform_activity_pause(tab, show_debug=False):
+    """
+    Detect platform risk-control pages that explicitly pause browsing activity.
+
+    These pages require manual account/network/device remediation. Automation
+    should stop dispatching platform actions once detected.
+    """
+    debug = util.create_debug_logger(enabled=show_debug)
+    try:
+        page_text = await tab.evaluate('''
+            (function() {
+                return (document.body && document.body.innerText) || "";
+            })()
+        ''')
+        if not page_text:
+            return False
+
+        text_lower = page_text.lower()
+        indicators = [
+            "your browsing activity has been paused",
+            "we've detected unusual behavior",
+            "we have detected unusual behavior",
+            "detected unusual behavior on either your network or your browser",
+            "change your wi-fi or cellular network",
+            "switch devices or move to a different location",
+        ]
+        detected = any(indicator in text_lower for indicator in indicators)
+        if detected:
+            debug.log("[RISK CONTROL] Platform browsing activity pause page detected")
+        return detected
+    except Exception as exc:
+        debug.log(f"[RISK CONTROL] Detection error: {exc}")
+        return False
+
+
+def pause_bot_for_manual_intervention(reason):
+    """Create the pause marker so the bot stops automated page actions."""
+    app_root = util.get_app_root()
+    idle_filepath = os.path.join(app_root, CONST_MAXBOT_INT28_FILE)
+    try:
+        with open(idle_filepath, "w") as text_file:
+            text_file.write(reason)
+        return True
+    except Exception as exc:
+        print(f"[ERROR] Failed to pause bot: {exc}")
+        return False
+
+
 # ===== Pause Mechanism =====
 
 async def check_and_handle_pause(config_dict=None):
