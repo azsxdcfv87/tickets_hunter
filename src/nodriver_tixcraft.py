@@ -64,7 +64,6 @@ CONST_UDN_SIGN_IN_URL = "https://tickets.udnfunlife.com/application/UTK01/UTK010
 CONST_URBTIX_SIGN_IN_URL = "https://www.urbtix.hk/member-login"
 
 warnings.simplefilter('ignore',InsecureRequestWarning)
-ssl._create_default_https_context = ssl._create_unverified_context
 logging.basicConfig()
 logger = logging.getLogger('logger')
 
@@ -583,9 +582,11 @@ async def reload_config(config_dict, last_mtime):
                     adv_fields = [
                         "play_sound", "disable_adjacent_seat", "hide_some_image",
                         "auto_guess_options", "user_guess_string", "auto_reload_page_interval", "verbose",
+                        "show_timestamp", "block_facebook_network",
                         "auto_reload_overheat_count", "auto_reload_overheat_cd",
                         "idle_keyword", "resume_keyword", "idle_keyword_second", "resume_keyword_second",
                         "discord_webhook_url", "telegram_bot_token", "telegram_chat_id",
+                        "discord_message", "telegram_message",
                         "discount_code"
                     ]
                     for field in adv_fields:

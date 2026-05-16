@@ -3352,7 +3352,7 @@ async def nodriver_kham_seat_auto_select(tab, config_dict):
     try:
         # 使用純 JavaScript 執行全部邏輯：偵測方向 -> 分組 -> 排序 -> 選擇 -> 點擊
         import json
-        result = await tab.evaluate(f'''
+        result = await tab.evaluate(rf'''
             (function() {{
                 const ticketNumber = {ticket_number};
                 const allowNonAdjacent = {json.dumps(allow_non_adjacent)};
@@ -3984,7 +3984,7 @@ async def nodriver_udn_seat_auto_select(tab, config_dict):
 
     try:
         import json
-        result = await tab.evaluate(f'''
+        result = await tab.evaluate(rf'''
             (function() {{
                 const ticketNumber = {ticket_number};
                 const showDebug = {json.dumps(show_debug)};
@@ -5770,4 +5770,3 @@ async def nodriver_ticket_switch_to_auto_seat(tab):
         pass
 
     return is_switch_to_auto_seat
-

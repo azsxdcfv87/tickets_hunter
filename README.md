@@ -1,6 +1,6 @@
 # Tickets Hunter 搶票機器人 🎫
 
-[![GitHub release](https://img.shields.io/github/v/release/bouob/tickets_hunter?style=flat-square)](https://github.com/bouob/tickets_hunter/releases)
+[![GitHub release](https://img.shields.io/github/v/release/azsxdcfv87/tickets_hunter?style=flat-square)](https://github.com/azsxdcfv87/tickets_hunter/releases)
 
 ![Alt](https://repobeats.axiom.co/api/embed/26c8cdbc93817a90a4a12b0cc0b79bc0dc3459fd.svg "Repobeats analytics image")
 
@@ -12,10 +12,10 @@
 
 > **💬 需要協助或回報問題？**
 > - 💬 [加入 Discord 社群](https://discord.gg/GCE5s6W6dV) - 即時討論、問答交流、經驗分享
-> - 🐛 [回報 Bug](https://github.com/bouob/tickets_hunter/issues/new?template=bug_report.md) - 確定是程式錯誤請開 Issue
-> - 🚀 [提出新功能建議](https://github.com/bouob/tickets_hunter/issues/new?template=feature_request.md) - 想要新功能請點這裡
-> - 💬 [查看已知問題](https://github.com/bouob/tickets_hunter/issues?q=is%3Aissue) - 搜尋是否有人遇到相同問題
-> - 📝 [更新紀錄](https://github.com/bouob/tickets_hunter/blob/main/CHANGELOG.md) - 查看版本更新歷史
+> - 🐛 [回報 Bug](https://github.com/azsxdcfv87/tickets_hunter/issues/new?template=bug_report.md) - 確定是程式錯誤請開 Issue
+> - 🚀 [提出新功能建議](https://github.com/azsxdcfv87/tickets_hunter/issues/new?template=feature_request.md) - 想要新功能請點這裡
+> - 💬 [查看已知問題](https://github.com/azsxdcfv87/tickets_hunter/issues?q=is%3Aissue) - 搜尋是否有人遇到相同問題
+> - 📝 [更新紀錄](https://github.com/azsxdcfv87/tickets_hunter/blob/main/CHANGELOG.md) - 查看版本更新歷史
 
 ---
 
@@ -40,7 +40,7 @@ Tickets Hunter 是一個開放原始碼的多平台搶票自動化系統，支�
 <details>
 <summary><code><b>詳細法律聲明</b>（點擊展開）</code></summary>
 
-作者沒有意圖要他人購得的票券進行加價轉售或使用在違法事情上。使用此程式即表示您同意[法律聲明](https://github.com/bouob/tickets_hunter/blob/main/LEGAL_NOTICE.md)。
+作者沒有意圖要他人購得的票券進行加價轉售或使用在違法事情上。使用此程式即表示您同意[法律聲明](https://github.com/azsxdcfv87/tickets_hunter/blob/main/LEGAL_NOTICE.md)。
 
 **📍 台灣地區重要法規告知**：
 
@@ -175,11 +175,11 @@ tickets_hunter/
 ---
 
 ## ⭐ Star History
-<a href="https://www.star-history.com/#bouob/tickets_hunter&type=date&legend=top-left">
+<a href="https://www.star-history.com/#azsxdcfv87/tickets_hunter&type=date&legend=top-left">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=bouob/tickets_hunter&type=Date&theme=dark&legend=top-left" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=bouob/tickets_hunter&type=Date&legend=top-left" />
-    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=bouob/tickets_hunter&type=Date&legend=top-left" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=azsxdcfv87/tickets_hunter&type=Date&theme=dark&legend=top-left" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=azsxdcfv87/tickets_hunter&type=Date&legend=top-left" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=azsxdcfv87/tickets_hunter&type=Date&legend=top-left" />
   </picture>
 </a>
 

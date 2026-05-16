@@ -31,7 +31,7 @@
 
 ### 2. 下載程式
 
-1. 前往 [GitHub Releases](https://github.com/bouob/tickets_hunter/releases)
+1. 前往 [GitHub Releases](https://github.com/azsxdcfv87/tickets_hunter/releases)
 2. 下載最新版本的 ZIP 檔案（例如：`tickets_hunter_v2025.11.03.zip`）
 3. 解壓縮到任意目錄
 4. 開啟終端機，進入解壓縮後的目錄：
@@ -411,7 +411,7 @@ pip install ddddocr
 
 **支援的 Python 版本**：3.9、3.10（推薦）、3.11、3.12
 
-**參考**：[Issue #7](https://github.com/bouob/tickets_hunter/issues/7)
+**參考**：[Issue #7](https://github.com/azsxdcfv87/tickets_hunter/issues/7)
 
 ---
 
@@ -419,7 +419,7 @@ pip install ddddocr
 
 ### 取得最新版本
 
-1. 前往 [GitHub Releases](https://github.com/bouob/tickets_hunter/releases)
+1. 前往 [GitHub Releases](https://github.com/azsxdcfv87/tickets_hunter/releases)
 2. 下載最新版本的 ZIP 檔案
 3. 解壓縮到新目錄（建議保留舊版本備份）
 4. 複製您的 `src/settings.json` 到新目錄
@@ -475,10 +475,10 @@ pip install ddddocr
 
 遇到問題或有疑問？歡迎到社群尋求協助：
 
-- 🙋 **[Q&A 問題解答](https://github.com/bouob/tickets_hunter/discussions/categories/q-a)** - 使用疑問先來這裡問
-- 💬 **[一般討論](https://github.com/bouob/tickets_hunter/discussions/categories/general)** - 分享使用經驗
-- 🐛 **[回報 Bug](https://github.com/bouob/tickets_hunter/issues/new?template=bug_report.md)** - 確定是程式錯誤請開 Issue
-- 💡 **[功能建議](https://github.com/bouob/tickets_hunter/discussions/categories/ideas)** - 想要新功能到這裡提案
+- 🙋 **[Q&A 問題解答](https://github.com/azsxdcfv87/tickets_hunter/discussions/categories/q-a)** - 使用疑問先來這裡問
+- 💬 **[一般討論](https://github.com/azsxdcfv87/tickets_hunter/discussions/categories/general)** - 分享使用經驗
+- 🐛 **[回報 Bug](https://github.com/azsxdcfv87/tickets_hunter/issues/new?template=bug_report.md)** - 確定是程式錯誤請開 Issue
+- 💡 **[功能建議](https://github.com/azsxdcfv87/tickets_hunter/discussions/categories/ideas)** - 想要新功能到這裡提案
 
 ---
 

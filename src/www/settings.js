@@ -101,6 +101,30 @@ const theme_status = document.querySelector('#theme_status');
 
 var settings = null;
 
+function getCookieValue(name) {
+    const prefix = name + '=';
+    const cookies = document.cookie ? document.cookie.split(';') : [];
+    for (const cookie of cookies) {
+        const trimmed = cookie.trim();
+        if (trimmed.startsWith(prefix)) {
+            return decodeURIComponent(trimmed.substring(prefix.length));
+        }
+    }
+    return '';
+}
+
+function authHeaders() {
+    return {
+        'X-Tickets-Hunter-Token': getCookieValue('tickets_hunter_token')
+    };
+}
+
+$.ajaxSetup({
+    beforeSend: function(xhr) {
+        xhr.setRequestHeader('X-Tickets-Hunter-Token', getCookieValue('tickets_hunter_token'));
+    }
+});
+
 maxbot_load_api();
 
 // Keyword conversion functions (aligned with util.py logic)
@@ -1026,7 +1050,7 @@ let lastDetectedQuestion = '';
  */
 async function checkDetectedQuestion() {
     try {
-        const response = await fetch('/question');
+        const response = await fetch('/question', { headers: authHeaders() });
         const data = await response.json();
 
         const alertElement = document.getElementById('detected-question-alert');

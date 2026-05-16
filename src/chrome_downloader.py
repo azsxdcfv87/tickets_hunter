@@ -16,6 +16,7 @@ import sys
 import zipfile
 from io import BytesIO
 from typing import Optional, Tuple
+from urllib.parse import urlparse
 
 import requests
 
@@ -23,6 +24,10 @@ logger = logging.getLogger(__name__)
 
 # Chrome for Testing API endpoint
 CHROME_FOR_TESTING_API = "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json"
+ALLOWED_DOWNLOAD_HOSTS = {
+    "storage.googleapis.com",
+    "edgedl.me.gvt1.com",
+}
 
 # Default download directory (relative to app root)
 DEFAULT_CHROME_DIR = "webdriver"
@@ -103,6 +108,27 @@ def get_chrome_executable_name() -> str:
     else:
         return "chrome"
 
+def is_allowed_download_url(url: str, no_ssl: bool = False) -> bool:
+    try:
+        parsed = urlparse(url)
+    except Exception:
+        return False
+    allowed_schemes = {"https"}
+    if no_ssl:
+        allowed_schemes.add("http")
+    if parsed.scheme not in allowed_schemes:
+        return False
+    return parsed.hostname in ALLOWED_DOWNLOAD_HOSTS
+
+def safe_extract_zip(zip_file: zipfile.ZipFile, target_dir: str) -> None:
+    """Extract a zip archive while preventing path traversal."""
+    target_root = os.path.abspath(target_dir)
+    for member in zip_file.infolist():
+        member_path = os.path.abspath(os.path.join(target_root, member.filename))
+        if os.path.commonpath([target_root, member_path]) != target_root:
+            raise zipfile.BadZipFile(f"Unsafe path in archive: {member.filename}")
+    zip_file.extractall(target_root)
+
 
 def get_downloaded_chrome_path(base_dir: str) -> Optional[str]:
     """
@@ -154,6 +180,9 @@ def download_chrome(download_dir: Optional[str] = None, no_ssl: bool = False) ->
 
     url, version = download_info
     platform_id = get_platform_identifier()
+    if not is_allowed_download_url(url, no_ssl=no_ssl):
+        logger.error(f"Unexpected Chrome download URL: {url}")
+        return None
 
     print(f"[Chrome Downloader] Downloading Chrome {version} for {platform_id}...")
     print(f"[Chrome Downloader] URL: {url}")
@@ -171,6 +200,9 @@ def download_chrome(download_dir: Optional[str] = None, no_ssl: bool = False) ->
             download_url = url
             if attempt > 0 and no_ssl:
                 download_url = url.replace("https://", "http://")
+            if not is_allowed_download_url(download_url, no_ssl=no_ssl):
+                logger.error(f"Unexpected Chrome download URL: {download_url}")
+                return None
 
             response = requests.get(download_url, timeout=300, stream=True)
             response.raise_for_status()
@@ -209,7 +241,7 @@ def download_chrome(download_dir: Optional[str] = None, no_ssl: bool = False) ->
     try:
         archive = BytesIO(content)
         with zipfile.ZipFile(archive, 'r') as zip_file:
-            zip_file.extractall(download_dir)
+            safe_extract_zip(zip_file, download_dir)
     except zipfile.BadZipFile as e:
         logger.error(f"Failed to extract Chrome archive: {e}")
         return None

@@ -23,7 +23,7 @@ git clone https://github.com/YOUR_USERNAME/tickets_hunter.git
 cd tickets_hunter
 
 # 設定上游倉庫
-git remote add upstream https://github.com/bouob/tickets_hunter.git
+git remote add upstream https://github.com/azsxdcfv87/tickets_hunter.git
 ```
 
 ### 2. 建立分支
@@ -107,7 +107,7 @@ python nodriver_tixcraft.py --input settings.json
 
 ## 問題回報
 
-透過 [GitHub Issues](https://github.com/bouob/tickets_hunter/issues) 回報，請附上：
+透過 [GitHub Issues](https://github.com/azsxdcfv87/tickets_hunter/issues) 回報，請附上：
 
 - 作業系統、Python 版本、Chrome 版本
 - 重現步驟與錯誤訊息
@@ -115,6 +115,6 @@ python nodriver_tixcraft.py --input settings.json
 
 ## 致謝
 
-- **@bouob** - 專案維護者
+- **@azsxdcfv87** - 專案維護者
 - **max32002/tixcraft_bot** - 原始專案啟發
 - 所有貢獻者與 issue 回報者

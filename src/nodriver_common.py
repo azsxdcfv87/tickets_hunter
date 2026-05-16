@@ -11,6 +11,7 @@ Dependency: util.py, settings.py, chrome_downloader.py (no platform imports)
 import asyncio
 import json
 import os
+import time
 import traceback
 
 from zendriver import cdp
@@ -974,6 +975,21 @@ def get_nodriver_browser_args():
 
     return browser_args
 
+def get_chrome_user_data_dir(app_root):
+    """Return a Chrome profile path that is not currently locked by another run."""
+    profile_root = os.path.join(app_root, "webdriver")
+    default_profile = os.path.join(profile_root, "chrome-profile")
+    os.makedirs(default_profile, exist_ok=True)
+
+    lock_markers = ["SingletonLock", "SingletonSocket", "SingletonCookie"]
+    if any(os.path.exists(os.path.join(default_profile, marker)) for marker in lock_markers):
+        fallback_profile = os.path.join(profile_root, f"chrome-profile-{os.getpid()}-{int(time.time())}")
+        os.makedirs(fallback_profile, exist_ok=True)
+        print(f"[Chrome] Default profile is locked; using temporary profile: {fallback_profile}")
+        return fallback_profile
+
+    return default_profile
+
 def get_extension_config(config_dict, args=None):
     sandbox = True
     browser_args = get_nodriver_browser_args()
@@ -1020,8 +1036,7 @@ def get_extension_config(config_dict, args=None):
         print("[ERROR] Please install Chrome manually or check your internet connection.")
         raise FileNotFoundError("Could not find or download Chrome browser")
 
-    user_data_dir = os.path.join(app_root, "webdriver", "chrome-profile")
-    os.makedirs(user_data_dir, exist_ok=True)
+    user_data_dir = get_chrome_user_data_dir(app_root)
 
     # Normal mode: auto-detect (host=None, port=None) to let NoDriver start the browser.
     # macOS can take longer to expose the remote debugging endpoint, especially on
@@ -1032,8 +1047,8 @@ def get_extension_config(config_dict, args=None):
         headless=config_dict["advanced"]["headless"],
         browser_executable_path=chrome_path,
         user_data_dir=user_data_dir,
-        browser_connection_timeout=1.0,
-        browser_connection_max_tries=30,
+        browser_connection_timeout=2.0,
+        browser_connection_max_tries=60,
     )
     return conf
 

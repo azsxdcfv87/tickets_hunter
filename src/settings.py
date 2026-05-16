@@ -2,9 +2,12 @@
 #encoding=utf-8
 import asyncio
 import base64
+import copy
 import json
 import os
 import platform
+import re
+import secrets
 import subprocess
 import sys
 import threading
@@ -54,6 +57,9 @@ CONST_MAXBOT_LAST_URL_FILE = "MAXBOT_LAST_URL.txt"
 CONST_MAXBOT_QUESTION_FILE = "MAXBOT_QUESTION.txt"
 
 CONST_SERVER_PORT = 16888
+CONST_AUTH_COOKIE_NAME = "tickets_hunter_token"
+CONST_AUTH_HEADER_NAME = "X-Tickets-Hunter-Token"
+SERVER_AUTH_TOKEN = secrets.token_urlsafe(32)
 
 CONST_FROM_TOP_TO_BOTTOM = "from top to bottom"
 CONST_FROM_BOTTOM_TO_TOP = "from bottom to top"
@@ -91,7 +97,7 @@ CONST_SUPPORTED_SITES = ["https://kktix.com"
 
 URL_DONATE = 'https://max-everyday.com/about/#donate'
 URL_HELP = 'https://max-everyday.com/2018/03/tixcraft-bot/'
-URL_RELEASE = 'https://github.com/bouob/tickets_hunter/releases'
+URL_RELEASE = 'https://github.com/azsxdcfv87/tickets_hunter/releases'
 URL_CHROME_DRIVER = 'https://chromedriver.chromium.org/'
 URL_FIREFOX_DRIVER = 'https://github.com/mozilla/geckodriver/releases'
 URL_EDGE_DRIVER = 'https://developer.microsoft.com/zh-tw/microsoft-edge/tools/webdriver/'
@@ -238,6 +244,12 @@ def migrate_config(config_dict):
     """Migrate old config structure to new structure."""
     if config_dict is None:
         return config_dict
+    if not isinstance(config_dict, dict):
+        return get_default_config()
+
+    for section in ["advanced", "accounts", "ocr_captcha"]:
+        if section in config_dict and not isinstance(config_dict[section], dict):
+            config_dict[section] = {}
 
     # Migrate ocr_model_path from advanced to ocr_captcha.path
     if "advanced" in config_dict and "ocr_model_path" in config_dict["advanced"]:
@@ -287,6 +299,122 @@ def migrate_config(config_dict):
             config_dict[key] = value
 
     return config_dict
+
+def _coerce_bool(value, default=False):
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        return value.strip().lower() in ("1", "true", "yes", "on")
+    return bool(value) if value is not None else default
+
+def _coerce_int(value, default=0, min_value=None, max_value=None):
+    try:
+        value = int(value)
+    except (TypeError, ValueError):
+        value = default
+    if min_value is not None:
+        value = max(min_value, value)
+    if max_value is not None:
+        value = min(max_value, value)
+    return value
+
+def _coerce_float(value, default=0.0, min_value=None, max_value=None):
+    try:
+        value = float(value)
+    except (TypeError, ValueError):
+        value = default
+    if min_value is not None:
+        value = max(min_value, value)
+    if max_value is not None:
+        value = min(max_value, value)
+    return value
+
+def _coerce_string(value, default=""):
+    if value is None:
+        return default
+    return str(value)
+
+def _coerce_by_default(value, default):
+    if isinstance(default, bool):
+        return _coerce_bool(value, default)
+    if isinstance(default, int) and not isinstance(default, bool):
+        return _coerce_int(value, default)
+    if isinstance(default, float):
+        return _coerce_float(value, default)
+    if isinstance(default, str):
+        return _coerce_string(value, default)
+    if isinstance(default, dict):
+        return sanitize_config_section(value, default)
+    return value
+
+def sanitize_config_section(source_section, default_section):
+    source_section = source_section if isinstance(source_section, dict) else {}
+    result = copy.deepcopy(default_section)
+    for key, default_value in default_section.items():
+        if key in source_section:
+            result[key] = _coerce_by_default(source_section[key], default_value)
+    return result
+
+def sanitize_config_for_save(config_dict):
+    """Normalize user-submitted settings before writing them to disk."""
+    if not isinstance(config_dict, dict):
+        raise ValueError("settings payload must be a JSON object")
+
+    default = get_default_config()
+    migrated = migrate_config(copy.deepcopy(config_dict))
+    result = copy.deepcopy(default)
+
+    for key, default_value in default.items():
+        if key in migrated:
+            result[key] = _coerce_by_default(migrated[key], default_value)
+
+    result["ticket_number"] = _coerce_int(result.get("ticket_number"), default["ticket_number"], 1, 99)
+
+    advanced = result["advanced"]
+    advanced["server_port"] = _coerce_int(
+        advanced.get("server_port"),
+        CONST_SERVER_PORT,
+        1024,
+        65535,
+    )
+    advanced["auto_reload_page_interval"] = _coerce_float(
+        advanced.get("auto_reload_page_interval"),
+        default["advanced"]["auto_reload_page_interval"],
+        0.1,
+        3600.0,
+    )
+    advanced["auto_reload_overheat_count"] = _coerce_int(
+        advanced.get("auto_reload_overheat_count"),
+        default["advanced"]["auto_reload_overheat_count"],
+        1,
+        1000,
+    )
+    advanced["auto_reload_overheat_cd"] = _coerce_float(
+        advanced.get("auto_reload_overheat_cd"),
+        default["advanced"]["auto_reload_overheat_cd"],
+        0.0,
+        3600.0,
+    )
+    advanced["reset_browser_interval"] = _coerce_int(
+        advanced.get("reset_browser_interval"),
+        default["advanced"]["reset_browser_interval"],
+        0,
+        86400,
+    )
+
+    if result["kktix"]["max_dwell_time"] > 0 and result["kktix"]["max_dwell_time"] < 15:
+        result["kktix"]["max_dwell_time"] = 15
+    if advanced["reset_browser_interval"] > 0 and advanced["reset_browser_interval"] < 20:
+        advanced["reset_browser_interval"] = 20
+
+    window_size = advanced.get("window_size", "")
+    if window_size and not re.match(r"^\d{2,5},\d{2,5}(,\d{1,3})?$", window_size):
+        advanced["window_size"] = default["advanced"]["window_size"]
+
+    if ".cityline.com" in result.get("homepage", ""):
+        result["webdriver_type"] = CONST_WEBDRIVER_TYPE_NODRIVER
+
+    return result
 
 def load_json():
     app_root = util.get_app_root()
@@ -415,16 +543,79 @@ def clean_tmp_file():
             except Exception as e:
                 print(f"[WARNING] Failed to remove {item}: {e}")
 
+def set_auth_cookie(handler):
+    handler.set_cookie(
+        CONST_AUTH_COOKIE_NAME,
+        SERVER_AUTH_TOKEN,
+        httponly=False,
+        samesite="Strict",
+    )
+
+def get_request_hostname(host):
+    host = (host or "").strip()
+    if host.startswith("["):
+        end = host.find("]")
+        return host[1:end] if end > 0 else host
+    if ":" in host:
+        return host.rsplit(":", 1)[0]
+    return host
+
+def is_local_hostname(hostname):
+    hostname = (hostname or "").lower()
+    return hostname in ("localhost", "::1") or hostname.startswith("127.")
+
+def is_same_origin_header(origin, request_host):
+    if not origin:
+        return True
+    from urllib.parse import urlparse
+    try:
+        parsed = urlparse(origin)
+    except Exception:
+        return False
+    return parsed.scheme == "http" and get_request_hostname(parsed.netloc) == get_request_hostname(request_host)
+
+class SecureAPIHandler(tornado.web.RequestHandler):
+    """Local-only API handler with same-origin token checks."""
+
+    def set_default_headers(self):
+        self.set_header("Cache-Control", "no-store")
+
+    def prepare(self):
+        set_auth_cookie(self)
+        if not is_local_hostname(get_request_hostname(self.request.host)):
+            self.set_status(403)
+            self.finish({"error": {"message": "local access only", "code": 4030}})
+            return
+
+        if not is_same_origin_header(self.request.headers.get("Origin"), self.request.host):
+            self.set_status(403)
+            self.finish({"error": {"message": "invalid origin", "code": 4031}})
+            return
+
+        header_token = self.request.headers.get(CONST_AUTH_HEADER_NAME, "")
+        cookie_token = self.get_cookie(CONST_AUTH_COOKIE_NAME, "")
+        if not (
+            secrets.compare_digest(header_token, SERVER_AUTH_TOKEN)
+            and secrets.compare_digest(cookie_token, SERVER_AUTH_TOKEN)
+        ):
+            self.set_status(403)
+            self.finish({"error": {"message": "invalid local token", "code": 4032}})
+
+    def options(self):
+        self.set_status(204)
+        self.finish()
+
 class NoCacheStaticFileHandler(StaticFileHandler):
     """Custom StaticFileHandler that prevents caching of settings.html"""
     def set_extra_headers(self, path):
+        set_auth_cookie(self)
         # Disable caching only for settings.html to prevent stale UI issues
         if path == 'settings.html':
             self.set_header('Cache-Control', 'no-cache, no-store, must-revalidate')
             self.set_header('Pragma', 'no-cache')
             self.set_header('Expires', '0')
 
-class QuestionHandler(tornado.web.RequestHandler):
+class QuestionHandler(SecureAPIHandler):
     def get(self):
         """Read MAXBOT_QUESTION.txt and return its content"""
         question_text = ""
@@ -444,17 +635,17 @@ class QuestionHandler(tornado.web.RequestHandler):
             "question": question_text
         })
 
-class VersionHandler(tornado.web.RequestHandler):
+class VersionHandler(SecureAPIHandler):
     def get(self):
         self.write({"version":self.application.version})
 
-class ShutdownHandler(tornado.web.RequestHandler):
+class ShutdownHandler(SecureAPIHandler):
     def get(self):
         global GLOBAL_SERVER_SHUTDOWN
         GLOBAL_SERVER_SHUTDOWN = True
         self.write({"showdown": GLOBAL_SERVER_SHUTDOWN})
 
-class StatusHandler(tornado.web.RequestHandler):
+class StatusHandler(SecureAPIHandler):
     def get(self):
         is_paused = False
         app_root = util.get_app_root()
@@ -464,23 +655,23 @@ class StatusHandler(tornado.web.RequestHandler):
         url = read_last_url_from_file()
         self.write({"status": not is_paused, "last_url": url})
 
-class PauseHandler(tornado.web.RequestHandler):
+class PauseHandler(SecureAPIHandler):
     def get(self):
         maxbot_idle()
         self.write({"pause": True})
 
-class ResumeHandler(tornado.web.RequestHandler):
+class ResumeHandler(SecureAPIHandler):
     def get(self):
         maxbot_resume()
         self.write({"resume": True})
 
-class RunHandler(tornado.web.RequestHandler):
+class RunHandler(SecureAPIHandler):
     def get(self):
         print('run button pressed.')
         launch_maxbot()
         self.write({"run": True})
 
-class LoadJsonHandler(tornado.web.RequestHandler):
+class LoadJsonHandler(SecureAPIHandler):
     def get(self):
         config_filepath, config_dict = load_json()
 
@@ -492,13 +683,16 @@ class LoadJsonHandler(tornado.web.RequestHandler):
 
         self.write(config_dict)
 
-class ResetJsonHandler(tornado.web.RequestHandler):
+class ResetJsonHandler(SecureAPIHandler):
     def get(self):
         config_filepath, config_dict = reset_json()
-        util.save_json(config_dict, config_filepath)
-        self.write(config_dict)
+        if util.save_json(config_dict, config_filepath):
+            self.write(config_dict)
+        else:
+            self.set_status(500)
+            self.write({"error": {"message": "failed to save default settings", "code": 1500}})
 
-class SaveJsonHandler(tornado.web.RequestHandler):
+class SaveJsonHandler(SecureAPIHandler):
     def post(self):
         _body = None
         is_pass_check = True
@@ -516,25 +710,20 @@ class SaveJsonHandler(tornado.web.RequestHandler):
                 pass
 
         if is_pass_check:
-            app_root = util.get_app_root()
-            config_filepath = os.path.join(app_root, CONST_MAXBOT_CONFIG_FILE)
-            config_dict = _body
-
-            if config_dict["kktix"]["max_dwell_time"] > 0:
-                if config_dict["kktix"]["max_dwell_time"] < 15:
-                    # min value is 15 seconds.
-                    config_dict["kktix"]["max_dwell_time"] = 15
-
-            if config_dict["advanced"]["reset_browser_interval"] > 0:
-                if config_dict["advanced"]["reset_browser_interval"] < 20:
-                    # min value is 20 seconds.
-                    config_dict["advanced"]["reset_browser_interval"] = 20
-
-            # due to cloudflare.
-            if ".cityline.com" in config_dict["homepage"]:
-                config_dict["webdriver_type"] = CONST_WEBDRIVER_TYPE_NODRIVER
-
-            util.save_json(config_dict, config_filepath)
+            try:
+                app_root = util.get_app_root()
+                config_filepath = os.path.join(app_root, CONST_MAXBOT_CONFIG_FILE)
+                config_dict = sanitize_config_for_save(_body)
+                if not util.save_json(config_dict, config_filepath):
+                    self.set_status(500)
+                    self.write(dict(error=dict(message="failed to save settings", code=1500)))
+                    self.finish()
+                    return
+            except Exception as exc:
+                self.set_status(400)
+                self.write(dict(error=dict(message=str(exc), code=1003)))
+                self.finish()
+                return
 
         if not is_pass_check:
             self.set_status(401)
@@ -542,12 +731,8 @@ class SaveJsonHandler(tornado.web.RequestHandler):
 
         self.finish()
 
-class SendkeyHandler(tornado.web.RequestHandler):
+class SendkeyHandler(SecureAPIHandler):
     def post(self):
-        self.set_header("Access-Control-Allow-Origin", "*")
-        self.set_header("Access-Control-Allow-Headers", "x-requested-with")
-        self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
-
         _body = None
         is_pass_check = True
         errorMessage = ""
@@ -566,13 +751,21 @@ class SendkeyHandler(tornado.web.RequestHandler):
         if is_pass_check:
             app_root = util.get_app_root()
             if "token" in _body:
-                tmp_file = _body["token"] + ".tmp"
-                config_filepath = os.path.join(app_root, tmp_file)
-                util.save_json(_body, config_filepath)
+                token = str(_body["token"])
+                if re.fullmatch(r"[A-Za-z0-9_-]{1,80}", token):
+                    tmp_file = token + ".tmp"
+                    config_filepath = os.path.abspath(os.path.join(app_root, tmp_file))
+                    app_root_abs = os.path.abspath(app_root)
+                    if config_filepath.startswith(app_root_abs + os.sep):
+                        util.save_json(_body, config_filepath)
+                else:
+                    self.set_status(400)
+                    self.write({"return": False, "error": "invalid token"})
+                    return
 
         self.write({"return": True})
 
-class TestDiscordWebhookHandler(tornado.web.RequestHandler):
+class TestDiscordWebhookHandler(SecureAPIHandler):
     ALLOWED_HOSTS = ("discord.com", "discordapp.com")
 
     def post(self):
@@ -627,7 +820,7 @@ class TestDiscordWebhookHandler(tornado.web.RequestHandler):
             debug.log("[Discord Webhook] Test failed: %s" % str(exc))
             self.write({"success": False, "message": str(exc)})
 
-class TestTelegramHandler(tornado.web.RequestHandler):
+class TestTelegramHandler(SecureAPIHandler):
     def post(self):
         try:
             body = json.loads(self.request.body)
@@ -694,15 +887,11 @@ class TestTelegramHandler(tornado.web.RequestHandler):
             debug.log("[Telegram] Test failed: %s" % msg)
             self.write({"success": False, "message": msg})
 
-class OcrHandler(tornado.web.RequestHandler):
+class OcrHandler(SecureAPIHandler):
     def get(self):
         self.write({"answer": "1234"})
 
     def post(self):
-        self.set_header("Access-Control-Allow-Origin", "*")
-        self.set_header("Access-Control-Allow-Headers", "x-requested-with")
-        self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
-
         _body = None
         is_pass_check = True
         errorMessage = ""
@@ -742,7 +931,7 @@ class OcrHandler(tornado.web.RequestHandler):
 
         self.write({"answer": ocr_answer})
 
-class QueryHandler(tornado.web.RequestHandler):
+class QueryHandler(SecureAPIHandler):
     def format_config_keyword_for_json(self, user_input):
         if len(user_input) > 0:
             # Remove any existing quotes first
@@ -815,7 +1004,7 @@ async def main_server():
         print(f"[WARNING] Invalid server_port: {server_port}, using default: {CONST_SERVER_PORT}")
         server_port = CONST_SERVER_PORT
 
-    app.listen(server_port)
+    app.listen(server_port, address="127.0.0.1")
     print("server running on port:", server_port)
 
     url = "http://127.0.0.1:" + str(server_port) + "/settings.html"

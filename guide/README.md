@@ -84,5 +84,5 @@ guide/
 ## 需要更多協助？
 
 - **Discord 社群**：[加入討論](https://discord.gg/GCE5s6W6dV)
-- **回報 Bug**：[GitHub Issues](https://github.com/bouob/tickets_hunter/issues/new?template=bug_report.md)
-- **功能建議**：[Feature Request](https://github.com/bouob/tickets_hunter/issues/new?template=feature_request.md)
+- **回報 Bug**：[GitHub Issues](https://github.com/azsxdcfv87/tickets_hunter/issues/new?template=bug_report.md)
+- **功能建議**：[Feature Request](https://github.com/azsxdcfv87/tickets_hunter/issues/new?template=feature_request.md)

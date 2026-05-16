@@ -909,7 +909,7 @@ async def nodriver_funone_assign_ticket_number(tab, config_dict):
 
     try:
         # FunOne-specific: Find ticket row by keyword and click its + button
-        set_quantity_js = f'''
+        set_quantity_js = rf'''
         (function() {{
             const targetQty = {ticket_number};
             const keywords = {keywords};
@@ -1386,7 +1386,7 @@ async def nodriver_funone_detect_step(tab):
         int: Step number (1=Area, 2=Quantity, 3=Form, 4=Payment, 5=Complete, 0=Unknown)
     """
     try:
-        detect_step_js = '''
+        detect_step_js = r'''
         (function() {
             const url = window.location.href;
             const bodyText = document.body.textContent || '';
@@ -2084,4 +2084,3 @@ async def nodriver_funone_main(tab, url, config_dict):
             await nodriver_funone_auto_reload(tab, config_dict)
 
     return tab
-

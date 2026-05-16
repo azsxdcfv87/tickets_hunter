@@ -159,13 +159,18 @@ jobs:
           retention-days: 7
 
       - name: Notify Discord
-        if: success() && env.DISCORD_WEBHOOK_URL != ''
+        if: success()
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           VERSION: ${{ steps.get_version.outputs.VERSION }}
           CHANGELOG_NOTES: ${{ steps.changelog.outputs.NOTES }}
         shell: bash
         run: |
+          if [ -z "$DISCORD_WEBHOOK_URL" ]; then
+            echo "Discord webhook not configured; skipping notification."
+            exit 0
+          fi
+
           # Escape special characters for JSON (preserve newlines as \n)
           ESCAPED_NOTES=$(echo "$CHANGELOG_NOTES" | head -10 | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed ':a;N;$!ba;s/\n/\\n/g')
 
@@ -178,7 +183,7 @@ jobs:
               "color": 5814783,
               "fields": [
                 {"name": "Version", "value": "v${VERSION}", "inline": true},
-                {"name": "Download", "value": "[GitHub Releases](https://github.com/bouob/tickets_hunter/releases/tag/v${VERSION})", "inline": true},
+                {"name": "Download", "value": "[GitHub Releases](https://github.com/azsxdcfv87/tickets_hunter/releases/tag/v${VERSION})", "inline": true},
                 {"name": "Changes", "value": "${ESCAPED_NOTES}", "inline": false}
               ],
               "footer": {"text": "Tickets Hunter - Auto Release"},

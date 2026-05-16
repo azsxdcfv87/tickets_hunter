@@ -57,7 +57,7 @@ jobs:
             fi
 
             # 處理每個 issue
-            echo "$ISSUES" | jq -c '.' | while read -r issue; do
+            while read -r issue; do
               ISSUE_NUMBER=$(echo "$issue" | jq -r '.number')
               UPDATED_AT=$(echo "$issue" | jq -r '.updated_at')
               IS_LOCKED=$(echo "$issue" | jq -r '.locked')
@@ -104,7 +104,7 @@ jobs:
                 echo "  尚未超過 3 天，停止檢查: #$ISSUE_NUMBER (最後更新: $UPDATED_AT)"
                 break 2  # 跳出兩層循環
               fi
-            done
+            done < <(echo "$ISSUES" | jq -c '.')
 
             PAGE=$((PAGE + 1))
           done

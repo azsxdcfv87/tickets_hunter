@@ -1289,10 +1289,10 @@ FANCLUB999
 
 遇到問題或有疑問？歡迎到社群尋求協助：
 
-- 🙋 **[Q&A 問題解答](https://github.com/bouob/tickets_hunter/discussions/categories/q-a)** - 使用疑問先來這裡問
-- 💬 **[一般討論](https://github.com/bouob/tickets_hunter/discussions/categories/general)** - 分享使用經驗
-- 🐛 **[回報 Bug](https://github.com/bouob/tickets_hunter/issues/new?template=bug_report.md)** - 確定是程式錯誤請開 Issue
-- 💡 **[功能建議](https://github.com/bouob/tickets_hunter/discussions/categories/ideas)** - 想要新功能到這裡提案
+- 🙋 **[Q&A 問題解答](https://github.com/azsxdcfv87/tickets_hunter/discussions/categories/q-a)** - 使用疑問先來這裡問
+- 💬 **[一般討論](https://github.com/azsxdcfv87/tickets_hunter/discussions/categories/general)** - 分享使用經驗
+- 🐛 **[回報 Bug](https://github.com/azsxdcfv87/tickets_hunter/issues/new?template=bug_report.md)** - 確定是程式錯誤請開 Issue
+- 💡 **[功能建議](https://github.com/azsxdcfv87/tickets_hunter/discussions/categories/ideas)** - 想要新功能到這裡提案
 
 ---
 

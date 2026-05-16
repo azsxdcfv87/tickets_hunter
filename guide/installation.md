@@ -33,7 +33,7 @@
 
 ### 前往 GitHub Releases 頁面
 
-1. 開啟瀏覽器，前往 [Tickets Hunter Releases 頁面](https://github.com/bouob/tickets_hunter/releases)
+1. 開啟瀏覽器，前往 [Tickets Hunter Releases 頁面](https://github.com/azsxdcfv87/tickets_hunter/releases)
 2. 找到最新版本（例如：`v2025.11.03`）
 3. 下載 ZIP 檔案：`tickets_hunter_vXXXX.XX.XX.zip`
 
@@ -309,7 +309,7 @@ netsh interface ipv4 show excludedportrange protocol=tcp
 ### Q6: 如何更新到新版本？
 
 **步驟**：
-1. 從 [GitHub Releases](https://github.com/bouob/tickets_hunter/releases) 下載最新 ZIP
+1. 從 [GitHub Releases](https://github.com/azsxdcfv87/tickets_hunter/releases) 下載最新 ZIP
 2. 解壓縮到新資料夾（或覆蓋舊版本）
 3. 複製舊版的 `settings.json` 到新版資料夾（保留設定）
 4. 完成！
@@ -329,10 +329,10 @@ netsh interface ipv4 show excludedportrange protocol=tcp
 
 遇到問題或有疑問？歡迎到社群尋求協助：
 
-- 🙋 **[Q&A 問題解答](https://github.com/bouob/tickets_hunter/discussions/categories/q-a)** - 使用疑問先來這裡問
-- 💬 **[一般討論](https://github.com/bouob/tickets_hunter/discussions/categories/general)** - 分享使用經驗
-- 🐛 **[回報 Bug](https://github.com/bouob/tickets_hunter/issues/new?template=bug_report.md)** - 確定是程式錯誤請開 Issue
-- 💡 **[功能建議](https://github.com/bouob/tickets_hunter/discussions/categories/ideas)** - 想要新功能到這裡提案
+- 🙋 **[Q&A 問題解答](https://github.com/azsxdcfv87/tickets_hunter/discussions/categories/q-a)** - 使用疑問先來這裡問
+- 💬 **[一般討論](https://github.com/azsxdcfv87/tickets_hunter/discussions/categories/general)** - 分享使用經驗
+- 🐛 **[回報 Bug](https://github.com/azsxdcfv87/tickets_hunter/issues/new?template=bug_report.md)** - 確定是程式錯誤請開 Issue
+- 💡 **[功能建議](https://github.com/azsxdcfv87/tickets_hunter/discussions/categories/ideas)** - 想要新功能到這裡提案
 
 ---
 

@@ -230,20 +230,23 @@ def is_text_match_keyword(keyword_string, text, config_dict=None):
 
 def save_json(config_dict, target_path):
     json_str = json.dumps(config_dict, indent=4)
+    target_dir = os.path.dirname(os.path.abspath(target_path))
+    tmp_path = os.path.join(target_dir, os.path.basename(target_path) + ".tmp")
     try:
-        with open(target_path, 'w') as outfile:
+        os.makedirs(target_dir, exist_ok=True)
+        with open(tmp_path, 'w', encoding='utf-8') as outfile:
             outfile.write(json_str)
+            outfile.flush()
+            os.fsync(outfile.fileno())
+        os.replace(tmp_path, target_path)
+        return True
     except Exception as e:
-        pass
+        print(f"[ERROR] Failed to save JSON to {target_path}: {e}")
+        force_remove_file(tmp_path)
+        return False
 
 def write_string_to_file(filename, data):
-    outfile = None
-    if platform.system() == 'Windows':
-        outfile = open(filename, 'w', encoding='UTF-8')
-    else:
-        outfile = open(filename, 'w')
-
-    if not outfile is None:
+    with open(filename, 'w', encoding='UTF-8') as outfile:
         outfile.write("%s" % data)
 
 def save_url_to_file(remote_url, CONST_MAXBOT_ANSWER_ONLINE_FILE, force_write = False, timeout=0.5):
